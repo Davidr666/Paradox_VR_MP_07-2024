@@ -11,10 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SceneMP1.unity
     guid: 6ca6862182824c54d88370d42b8ff9c8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SceneMP2.unity
     guid: 796fc59238d74a6409187e7bb2c60ac8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SceneMP3.unity
     guid: 47c8f09767cb123438769e3c2fe20f24
   m_configObjects: {}
