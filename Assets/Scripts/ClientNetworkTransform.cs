@@ -2,14 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode.Components;
 using UnityEngine;
-using Unity.Netcode;
-using Unity.Networking;
 
 //[DisallowMultipleComponents]
 [DisallowMultipleComponent]
 public class ClientNetworkTransform : NetworkTransform
 {
-    //public override Is server authoritative()
+    //public override IsServerAuthoritative()
     //{
     //    return false;
     //}

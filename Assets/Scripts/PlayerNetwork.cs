@@ -7,13 +7,13 @@ using Unity.Netcode;
 public class PlayerNetwork : NetworkBehaviour
 {
     public float speed = 5f;
+    private NetworkVariable<int> RandomNumber = new NetworkVariable<int>(1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (!IsOwner) return;
@@ -25,5 +25,10 @@ public class PlayerNetwork : NetworkBehaviour
 
         //transform.position = moveDir;
         transform.Translate(moveDir, Space.World);
+
+        Debug.Log("Client id: " + OwnerClientId + " ... number: " + RandomNumber.Value);
+        if (Input.GetKeyDown(KeyCode.N)){
+        RandomNumber.Value = Random.Range(0, 100);
+        }
     }
 }
