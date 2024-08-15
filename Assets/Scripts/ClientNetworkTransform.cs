@@ -7,10 +7,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class ClientNetworkTransform : NetworkTransform
 {
-    //public override IsServerAuthoritative()
-    //{
-    //    return false;
-    //}
+    protected override bool OnIsServerAuthoritative()
+    {
+        return false;
+    }
 
     // Start is called before the first frame update
     //void Start()
