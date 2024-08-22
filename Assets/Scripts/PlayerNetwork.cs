@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
+using Unity.VisualScripting;
 
 public class PlayerNetwork : NetworkBehaviour {
 
@@ -12,15 +13,26 @@ public class PlayerNetwork : NetworkBehaviour {
 
 	[SerializeField] private float speed;
 	[SerializeField] private TextMeshProUGUI valueText;
+	[SerializeField] private GameObject sphere1;
+	[SerializeField] private GameObject sphere2;
+	[SerializeField] private GameObject cube1;
 
 	public override void OnNetworkSpawn()
 	{
-		randomNumber.OnValueChanged += (int previousValue, int newValue) =>
-		{
-			Debug.Log("Client id: " + OwnerClientId + ", random number: " + randomNumber.Value);
-			valueText.text = randomNumber.Value.ToString();
-		};
+        randomNumber.OnValueChanged += (int previousValue, int newValue) =>
+        {
+            Debug.Log("Client id: " + OwnerClientId + ", random number: " + randomNumber.Value);
+            valueText.text = "El nuevo valor es: " + randomNumber.Value.ToString();
+            //ChangeObjects();
+        };
 	}
+
+    private void ChangeObjects()
+    {
+        sphere1.gameObject.GetComponent<Renderer>().material.color = Color.green;
+        sphere2.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
+        cube1.gameObject.SetActive(false);
+    }
 
 	private void Update()
 	{
@@ -29,11 +41,17 @@ public class PlayerNetwork : NetworkBehaviour {
 
 		MovePlayer();
 
-		if(Input.GetKeyDown(KeyCode.N))
+		if (Input.GetKeyDown(KeyCode.N))
+		{
 			randomNumber.Value = Random.Range(0, 100);
+			//ChangeObjects();
+		}
 
+		if (Input.GetKeyDown(KeyCode.T))
+		{
+			TestServerRpc("Hola", 3, true);
+		}
 	}
-
 	private void MovePlayer()
 	{
 		var moveX = Input.GetAxis("Horizontal");
@@ -42,4 +60,16 @@ public class PlayerNetwork : NetworkBehaviour {
 		Vector3 moveDir = new Vector3(moveX, 0, moveZ);
 		transform.Translate(moveDir * speed * Time.deltaTime) ;
 	}
+
+	[ServerRpc]
+	public void TestServerRpc(string str, int n, bool b)
+	{
+		Debug.Log($"Test ServerRpc called by: {OwnerClientId}, message: {str}");
+	}
+
+    [ClientRpc]
+    public void TestClientRpc()
+    {
+        Debug.Log("Test ClientRpc called by: " + OwnerClientId);
+    }
 }
