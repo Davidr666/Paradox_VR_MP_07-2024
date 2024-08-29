@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
-using Unity.VisualScripting;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class PlayerNetwork : NetworkBehaviour {
 
@@ -13,63 +15,112 @@ public class PlayerNetwork : NetworkBehaviour {
 
 	[SerializeField] private float speed;
 	[SerializeField] private TextMeshProUGUI valueText;
-	[SerializeField] private GameObject sphere1;
-	[SerializeField] private GameObject sphere2;
-	[SerializeField] private GameObject cube1;
 
+	// Change player color
+	public Renderer playerRenderer;
+	public Slider healthBar;
+	public TextMeshProUGUI playerNameText;
+
+	public NetworkVariable<float> health = new NetworkVariable<float>(100f);
+	public NetworkVariable<Color> playerColor = new NetworkVariable<Color>(Color.white);
+	
 	public override void OnNetworkSpawn()
 	{
-        randomNumber.OnValueChanged += (int previousValue, int newValue) =>
-        {
-            Debug.Log("Client id: " + OwnerClientId + ", random number: " + randomNumber.Value);
-            valueText.text = "El nuevo valor es: " + randomNumber.Value.ToString();
-            //ChangeObjects();
-        };
+		playerNameText.text = "Player " + OwnerClientId ; 
+		randomNumber.OnValueChanged += HandleRandomNumberChanged;
+		if(IsLocalPlayer) ChangeColor(Color.cyan);
 	}
 
-    private void ChangeObjects()
-    {
-        sphere1.gameObject.GetComponent<Renderer>().material.color = Color.green;
-        sphere2.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-        cube1.gameObject.SetActive(false);
-    }
+	public override void OnNetworkDespawn() => randomNumber.OnValueChanged -= HandleRandomNumberChanged;
+
+	private void Start()
+	{
+		// Change the color of the local player
+		//if(IsLocalPlayer) ChangeColor(Color.cyan);
+	}
 
 	private void Update()
 	{
-		if (!IsOwner)
-			return;
+		if (!IsOwner) return;
 
 		MovePlayer();
 
-		if (Input.GetKeyDown(KeyCode.N))
-		{
-			randomNumber.Value = Random.Range(0, 100);
-			//ChangeObjects();
-		}
-
-		if (Input.GetKeyDown(KeyCode.T))
-		{
-			TestServerRpc("Hola", 3, true);
-		}
+		// Change color to random color
+		if (Input.GetKeyDown(KeyCode.C)) 
+			ChangeColor(new Color(Random.value, Random.value, Random.value));
+		
+		// Reduce health
+		if (Input.GetKeyDown(KeyCode.H)) ModifyHealth(-10f);
+		
+		// Increase health
+		if (Input.GetKeyDown(KeyCode.H)) ModifyHealth(+10f);
+		
+		if (Input.GetKeyDown(KeyCode.N)) randomNumber.Value = Random.Range(0, 100);
+		if (Input.GetKeyDown(KeyCode.T)) TestServerRpc("Hola", 3, true);
 	}
+	
 	private void MovePlayer()
 	{
 		var moveX = Input.GetAxis("Horizontal");
 		var moveZ = Input.GetAxis("Vertical");
 
-		Vector3 moveDir = new Vector3(moveX, 0, moveZ);
+		var moveDir = new Vector3(moveX, 0, moveZ);
 		transform.Translate(moveDir * speed * Time.deltaTime) ;
 	}
 
 	[ServerRpc]
-	public void TestServerRpc(string str, int n, bool b)
+	private void TestServerRpc(string str, int n, bool b)
 	{
 		Debug.Log($"Test ServerRpc called by: {OwnerClientId}, message: {str}");
+		Debug.Log("is server: " + IsServer);
+		Debug.Log("is client: " + IsClient);
+		Debug.Log("is local player: " + IsLocalPlayer);
+	}
+	
+	[ServerRpc]
+	private void ChangeColorServerRpc(Color newColor)
+	{
+		Debug.Log("Change color called by ServerRpc.");
+		Debug.Log("is server: " + IsServer);
+		Debug.Log("is client: " + IsClient);
+		Debug.Log("is local player: " + IsLocalPlayer);
+		playerColor.Value = newColor;
+		playerRenderer.material.color = playerColor.Value;
+	}
+	
+	[ServerRpc]
+	private void ModifyHealthServerRpc(float amount)
+	{
+		health.Value = Mathf.Clamp(health.Value + amount, 0, 100);
+		Debug.Log("ModifyHealthServerRpc called by ServerRpc.");
+		Debug.Log("is server: " + IsServer);
+		Debug.Log("is client: " + IsClient);
+		Debug.Log("is local player: " + IsLocalPlayer);
 	}
 
     [ClientRpc]
     public void TestClientRpc()
     {
         Debug.Log("Test ClientRpc called by: " + OwnerClientId);
+        Debug.Log("is server: " + IsServer);
+        Debug.Log("is client: " + IsClient);
+        Debug.Log("is local player: " + IsLocalPlayer);
     }
+    
+    public void ChangeColor(Color color)
+    {
+	    ChangeColorServerRpc(color);
+    }
+
+    public void ModifyHealth(float amount)
+    {
+	    ModifyHealthServerRpc(amount);
+    }
+    
+    private void HandleRandomNumberChanged(int previousValue, int newValue)
+    {
+	    Debug.Log("Client id: " + OwnerClientId + ", random number: " + newValue);
+	    valueText.text = "value: " + newValue;
+    }
+
 }
