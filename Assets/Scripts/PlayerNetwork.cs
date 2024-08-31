@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Unity.Netcode;
 using TMPro;
@@ -16,28 +15,40 @@ public class PlayerNetwork : NetworkBehaviour {
 	[SerializeField] private float speed;
 	[SerializeField] private TextMeshProUGUI valueText;
 
-	// Change player color
-	public Renderer playerRenderer;
 	public Slider healthBar;
 	public TextMeshProUGUI playerNameText;
 
 	public NetworkVariable<float> health = new NetworkVariable<float>(100f);
 	public NetworkVariable<Color> playerColor = new NetworkVariable<Color>(Color.white);
 	
+	[SerializeField] private Camera playerCamera;
+	[SerializeField] private GameObject playerFollowCamera;
+	[SerializeField] private GameObject playerCameraRoot;
+	[SerializeField] private GameObject uiCanvas;
+	[SerializeField] private GameObject uiEventSystem;
+	[SerializeField] private AudioListener listener;
+
+	public bool checkIsOwner;
+	
 	public override void OnNetworkSpawn()
 	{
-		playerNameText.text = "Player " + OwnerClientId ; 
-		randomNumber.OnValueChanged += HandleRandomNumberChanged;
-		if(IsLocalPlayer) ChangeColor(Color.cyan);
+		// playerNameText.text = "Player " + OwnerClientId ; 
+		// randomNumber.OnValueChanged += HandleRandomNumberChanged;
+		SetLocalPlayerItems(IsOwner);
+		checkIsOwner = IsOwner; 
+	}
+
+	private void SetLocalPlayerItems(bool isPlayerOwner)
+	{
+		playerCamera.gameObject.SetActive(isPlayerOwner);
+		playerFollowCamera.gameObject.SetActive(isPlayerOwner);
+		playerCameraRoot.gameObject.SetActive(isPlayerOwner);
+		uiCanvas.gameObject.SetActive(isPlayerOwner);
+		uiEventSystem.gameObject.SetActive(isPlayerOwner);
+		listener.gameObject.SetActive(isPlayerOwner);
 	}
 
 	public override void OnNetworkDespawn() => randomNumber.OnValueChanged -= HandleRandomNumberChanged;
-
-	private void Start()
-	{
-		// Change the color of the local player
-		//if(IsLocalPlayer) ChangeColor(Color.cyan);
-	}
 
 	private void Update()
 	{
@@ -71,40 +82,27 @@ public class PlayerNetwork : NetworkBehaviour {
 	[ServerRpc]
 	private void TestServerRpc(string str, int n, bool b)
 	{
-		Debug.Log($"Test ServerRpc called by: {OwnerClientId}, message: {str}");
-		Debug.Log("is server: " + IsServer);
-		Debug.Log("is client: " + IsClient);
-		Debug.Log("is local player: " + IsLocalPlayer);
+		Debug.Log("TestServerRpc called");
 	}
 	
 	[ServerRpc]
 	private void ChangeColorServerRpc(Color newColor)
 	{
-		Debug.Log("Change color called by ServerRpc.");
-		Debug.Log("is server: " + IsServer);
-		Debug.Log("is client: " + IsClient);
-		Debug.Log("is local player: " + IsLocalPlayer);
+		Debug.Log($"Change Color called by: {OwnerClientId}, message: {newColor}");
 		playerColor.Value = newColor;
-		playerRenderer.material.color = playerColor.Value;
 	}
 	
 	[ServerRpc]
 	private void ModifyHealthServerRpc(float amount)
 	{
 		health.Value = Mathf.Clamp(health.Value + amount, 0, 100);
-		Debug.Log("ModifyHealthServerRpc called by ServerRpc.");
-		Debug.Log("is server: " + IsServer);
-		Debug.Log("is client: " + IsClient);
-		Debug.Log("is local player: " + IsLocalPlayer);
+		Debug.Log("ModifyHealthServerRpc called");
 	}
 
     [ClientRpc]
     public void TestClientRpc()
     {
-        Debug.Log("Test ClientRpc called by: " + OwnerClientId);
-        Debug.Log("is server: " + IsServer);
-        Debug.Log("is client: " + IsClient);
-        Debug.Log("is local player: " + IsLocalPlayer);
+	    Debug.Log("TestClientRpc called by ClientRpc.");
     }
     
     public void ChangeColor(Color color)
@@ -119,8 +117,7 @@ public class PlayerNetwork : NetworkBehaviour {
     
     private void HandleRandomNumberChanged(int previousValue, int newValue)
     {
-	    Debug.Log("Client id: " + OwnerClientId + ", random number: " + newValue);
+	    Debug.Log("handle random number changed from: " + previousValue + " to " + newValue);
 	    valueText.text = "value: " + newValue;
     }
-
 }
