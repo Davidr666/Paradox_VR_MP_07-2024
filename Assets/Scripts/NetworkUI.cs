@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class NetworkManagerUI : MonoBehaviour {
+public class NetworkUI : MonoBehaviour {
 	[SerializeField] private Button serverBtn;
 	[SerializeField] private Button hostBtn;
 	[SerializeField] private Button clientBtn;
@@ -25,7 +25,7 @@ public class NetworkManagerUI : MonoBehaviour {
 		});
 	}
 
-	public void DisableMpButtons()
+	private void DisableMpButtons()
 	{
 		serverBtn.gameObject.SetActive(false);
 		hostBtn.gameObject.SetActive(false);
