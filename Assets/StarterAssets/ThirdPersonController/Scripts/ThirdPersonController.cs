@@ -160,7 +160,7 @@ namespace StarterAssets
             {
                 _playerInput = GetComponent<PlayerInput>();
                 _playerInput.enabled = true;
-                _cinemachineVirtualCamera.Follow = transform;
+                _cinemachineVirtualCamera.Follow = transform.Find("PlayerCameraRoot");
             }
         }
 
