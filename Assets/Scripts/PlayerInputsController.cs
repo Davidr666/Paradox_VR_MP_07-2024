@@ -12,7 +12,6 @@ public class PlayerInputsController : MonoBehaviour
 
     private void OnEnable()
     {
-        movementInput = new Vector2(0.09f, 0.01f);
         playerInput = GetComponent<PlayerInput>();
         playerInput.actions["Look"].performed += OnLook;
         playerInput.actions["Look"].canceled += OnLook;

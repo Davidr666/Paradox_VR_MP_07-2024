@@ -15186,8 +15186,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 9177861775831117953, guid: 9d20c7496e120104da03cce64653da6e,
     type: 3}
-  moveSpeed: 0
-  lookSpeed: 0
+  moveSpeed: 5
+  lookSpeed: 0.1
   movementInput: {x: 0, y: 0}
   lookInput: {x: 0, y: 0}
   playerInput: {fileID: 0}
