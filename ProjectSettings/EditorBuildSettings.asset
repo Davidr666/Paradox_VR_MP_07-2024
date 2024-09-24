@@ -9,6 +9,15 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
+    path: Assets/Menu.unity
+    guid: 4f16988f42b98eb48bd71d404ef93075
+  - enabled: 1
+    path: Assets/VR_Scene_JumpiPig.unity
+    guid: 63610472dad89994cb5267d7d8e3312f
+  - enabled: 1
+    path: Assets/VR_Scene_1_David Romero.unity
+    guid: 4b2ccbcba53ecb24c8389a54e3337e44
+  - enabled: 1
     path: Assets/Scenes/SceneMP1.unity
     guid: 6ca6862182824c54d88370d42b8ff9c8
   - enabled: 1
