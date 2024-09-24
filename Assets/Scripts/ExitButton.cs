@@ -1,0 +1,14 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ExitButton : MonoBehaviour
+{
+
+    public void OnExitButtonClick()
+    {
+        Application.Quit();
+        Debug.Log("THANKS FOR PLAYING");  
+    }
+
+}
